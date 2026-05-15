@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Premium Video Portal - Netflix, YouTube va TikTok uslubidagi zamonaviy video tomosha qilish platformasi">
+    <meta name="keywords" content="video, portal, streaming, netflix, youtube, tiktok, premium">
+    <meta name="author" content="Video Portal">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Premium Video Portal">
+    <meta property="og:description" content="Zamonaviy video tomosha qilish platformasi">
+    <meta property="og:type" content="website">
+    
+    <title>VideoFlix - Premium Video Portal</title>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <!-- HLS.js for m3u8 support -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/player.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-logo">
+            <div class="logo-icon">
+                <span class="material-icons-round">play_circle_filled</span>
+            </div>
+            <h1 class="logo-text">VideoFlix</h1>
+            <div class="splash-loader">
+                <div class="loader-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- No Internet UI -->
+    <div id="offline-screen" class="offline-screen hidden">
+        <div class="offline-content">
+            <span class="material-icons-round offline-icon">wifi_off</span>
+            <h2>Internet aloqasi yo'q</h2>
+            <p>Iltimos, internet aloqangizni tekshiring va qayta urinib ko'ring</p>
+            <button id="retry-btn" class="btn btn-primary">
+                <span class="material-icons-round">refresh</span>
+                Qayta urinish
+            </button>
+        </div>
+    </div>
+
+    <!-- Install App Popup -->
+    <div id="install-popup" class="install-popup hidden">
+        <div class="install-content glass">
+            <span class="material-icons-round install-icon">get_app</span>
+            <div class="install-text">
+                <h4>Ilovani o'rnating</h4>
+                <p>VideoFlix ilovasini o'rnating va tezroq foydalaning</p>
+            </div>
+            <div class="install-actions">
+                <button id="install-dismiss" class="btn btn-ghost">Keyinroq</button>
+                <button id="install-accept" class="btn btn-primary">O'rnatish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Main App -->
+    <div id="app" class="app hidden">
+        <!-- Top Header -->
+        <header id="app-header" class="app-header glass">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo">
+                        <span class="material-icons-round logo-mini">play_circle_filled</span>
+                        <span class="logo-name">VideoFlix</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="icon-btn" id="search-btn" aria-label="Qidirish">
+                        <span class="material-icons-round">search</span>
+                    </button>
+                    <button class="icon-btn" id="notifications-btn" aria-label="Bildirishnomalar">
+                        <span class="material-icons-round">notifications_none</span>
+                        <span class="notification-dot"></span>
+                    </button>
+                    <button class="icon-btn avatar-btn" id="profile-btn" aria-label="Profil">
+                        <div class="avatar">V</div>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area (SPA Router renders here) -->
+        <main id="main-content" class="main-content">
+            <!-- Pull to refresh indicator -->
+            <div id="pull-refresh" class="pull-refresh">
+                <div class="pull-refresh-spinner"></div>
+            </div>
+            
+            <!-- Page content will be injected here -->
+            <div id="page-container" class="page-container"></div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav id="bottom-nav" class="bottom-nav glass">
+            <button class="nav-item active" data-route="home" aria-label="Bosh sahifa">
+                <span class="material-icons-round">home</span>
+                <span class="nav-label">Bosh</span>
+                <span class="nav-indicator"></span>
+            </button>
+            <button class="nav-item" data-route="search" aria-label="Qidirish">
+                <span class="material-icons-round">search</span>
+                <span class="nav-label">Qidirish</span>
+                <span class="nav-indicator"></span>
+            </button>
+            <button class="nav-item" data-route="favorites" aria-label="Sevimlilar">
+                <span class="material-icons-round">favorite</span>
+                <span class="nav-label">Sevimli</span>
+                <span class="nav-indicator"></span>
+            </button>
+            <button class="nav-item" data-route="profile" aria-label="Profil">
+                <span class="material-icons-round">person</span>
+                <span class="nav-label">Profil</span>
+                <span class="nav-indicator"></span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Video Player Modal -->
+    <div id="player-modal" class="player-modal hidden">
+        <div class="player-container">
+            <div class="player-header">
+                <button id="player-back" class="icon-btn">
+                    <span class="material-icons-round">arrow_back</span>
+                </button>
+                <div class="player-title-section">
+                    <h3 id="player-title"></h3>
+                    <p id="player-subtitle"></p>
+                </div>
+                <div class="player-header-actions">
+                    <button id="player-pip" class="icon-btn" title="Picture in Picture">
+                        <span class="material-icons-round">picture_in_picture_alt</span>
+                    </button>
+                    <button id="player-cast" class="icon-btn">
+                        <span class="material-icons-round">cast</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="video-wrapper" id="video-wrapper">
+                <video id="video-player" playsinline webkit-playsinline></video>
+                
+                <!-- Loading Spinner -->
+                <div id="player-loading" class="player-loading">
+                    <div class="spinner"></div>
+                </div>
+
+                <!-- Custom Controls -->
+                <div id="player-controls" class="player-controls">
+                    <div class="controls-gradient"></div>
+                    
+                    <!-- Center Play Button -->
+                    <div class="center-controls">
+                        <button id="player-rewind" class="control-btn">
+                            <span class="material-icons-round">replay_10</span>
+                        </button>
+                        <button id="player-playpause" class="control-btn play-pause-btn">
+                            <span class="material-icons-round" id="playpause-icon">play_arrow</span>
+                        </button>
+                        <button id="player-forward" class="control-btn">
+                            <span class="material-icons-round">forward_10</span>
+                        </button>
+                    </div>
+
+                    <!-- Bottom Controls -->
+                    <div class="bottom-controls">
+                        <div class="progress-container" id="progress-container">
+                            <div class="progress-buffered" id="progress-buffered"></div>
+                            <div class="progress-bar" id="progress-bar"></div>
+                            <div class="progress-thumb" id="progress-thumb"></div>
+                        </div>
+                        
+                        <div class="controls-row">
+                            <div class="time-display">
+                                <span id="current-time">0:00</span>
+                                <span class="time-separator">/</span>
+                                <span id="duration">0:00</span>
+                            </div>
+                            
+                            <div class="right-controls">
+                                <button id="player-subtitle-btn" class="control-mini-btn" title="Subtitr">
+                                    <span class="material-icons-round">subtitles</span>
+                                </button>
+                                <button id="player-speed-btn" class="control-mini-btn" title="Tezlik">
+                                    <span class="speed-text">1x</span>
+                                </button>
+                                <button id="player-quality-btn" class="control-mini-btn" title="Sifat">
+                                    <span class="material-icons-round">hd</span>
+                                </button>
+                                <button id="player-fullscreen" class="control-mini-btn" title="To'liq ekran">
+                                    <span class="material-icons-round" id="fullscreen-icon">fullscreen</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Menu -->
+                <div id="settings-menu" class="settings-menu hidden">
+                    <div class="settings-content"></div>
+                </div>
+
+                <!-- Next Video Card -->
+                <div id="next-video-card" class="next-video-card hidden">
+                    <div class="next-video-content">
+                        <p class="next-label">Keyingi video</p>
+                        <img id="next-thumb" alt="">
+                        <h4 id="next-title"></h4>
+                        <div class="next-actions">
+                            <button id="next-cancel" class="btn btn-ghost">Bekor qilish</button>
+                            <button id="next-play" class="btn btn-primary">Ko'rish</button>
+                        </div>
+                        <div class="next-progress">
+                            <div class="next-progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Player Info Section -->
+            <div class="player-info">
+                <div class="player-actions">
+                    <button class="player-action-btn" id="action-favorite">
+                        <span class="material-icons-round">favorite_border</span>
+                        <span>Sevimli</span>
+                    </button>
+                    <button class="player-action-btn" id="action-share">
+                        <span class="material-icons-round">share</span>
+                        <span>Ulashish</span>
+                    </button>
+                    <button class="player-action-btn" id="action-download">
+                        <span class="material-icons-round">download</span>
+                        <span>Yuklash</span>
+                    </button>
+                </div>
+                <div class="player-description" id="player-description"></div>
+                <div class="player-meta" id="player-meta"></div>
+                
+                <!-- Recommended -->
+                <div class="recommended-section">
+                    <h3 class="section-title">Tavsiya etiladi</h3>
+                    <div id="recommended-list" class="recommended-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts (ES6 Modules) -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
