@@ -1,0 +1,73 @@
+/* ===========================================
+   RESPONSIVE STYLES
+   =========================================== */
+
+/* Tablet */
+@media (min-width: 600px) {
+    .card-carousel {
+        width: 320px;
+    }
+    
+    .hero-title {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .card-list .card-thumb {
+        width: 200px;
+    }
+}
+
+/* Desktop / Large screens */
+@media (min-width: 1024px) {
+    :root {
+        --content-padding: 24px;
+    }
+    
+    .bottom-nav {
+        display: flex;
+    }
+    
+    .hero-banner {
+        height: 80vh;
+        max-height: 720px;
+    }
+    
+    .card-carousel {
+        width: 360px;
+    }
+    
+    .player-container {
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+}
+
+/* Landscape Player */
+@media (orientation: landscape) and (max-height: 500px) {
+    .video-wrapper {
+        aspect-ratio: unset;
+        height: 100vh;
+    }
+}
+
+/* High DPI screens */
+@media (-webkit-min-device-pixel-ratio: 2) {
+    .skeleton {
+        background-size: 200% 100%;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Print mode hidden */
+@media print {
+    .app-header, .bottom-nav, .player-modal {
+        display: none !important;
+    }
+}
